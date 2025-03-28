@@ -1,0 +1,9 @@
+Friday March 28
+
+- Make the 3d models lift up and spin when hovered /  stop the shelves haha
+- make the camera go to isometric view when scrolling
+- zoom in on model when hovered over as well
+-text box appear on right and blur the background with a description
+- find the right font and give the site the japanese paper feel with scrim
+
+- Add CSS grid in for the main content. 

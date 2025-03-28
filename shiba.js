@@ -1,62 +1,84 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { scene, camera, renderer } from './threeSetup.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/Addons.js';
 
-
-
+// GLTF Loader
 const loader = new GLTFLoader();
 
-// camera
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 70, 100000);
-camera.position.set(-2.58, 287.4, 962.6);
-camera.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+// Raycaster for Hover Detection
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let shibaModels = []; // Store all loaded models
 
+// Mouse Move Event Listener
+// window.addEventListener('mouseover', (event) => {
+//     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+//     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+//     console.log(mouse.x, mouse.y);
+// });
 
-// scene
-const scene = new THREE.Scene();
+function onPointerMove(event) {
 
-// const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-// scene.add(ambientLight);
+    // calculate pointer position in normalized device coordinates
+    // (-1 to +1) for both components
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-directionalLight.position.set(10, 10, 10);
-scene.add(directionalLight);
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    console.log("Pointer Move", event, mouse.x, mouse.y);
 
-
-// renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-
-// scene settings
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFShadowMap;
-
-scene.background = new THREE.Color('#ffffff');
-renderer.setClearAlpha(1);
-
-// scene.background = new THREE.Color('red');
-// renderer.setClearAlpha(1);
-
-const example = loader.load('./assets/shiba/scene.gltf', function (gltf) {
-
-    scene.add(gltf.scene);
-    console.log("LOADED SHIBA SUCCESSFULLY");
-
-}, undefined, function (error) {
-
-    console.error(error);
-
-});
-
-renderer.render(scene, camera);
-
-window.addEventListener('resize', onWindowResize);
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+//Orbit Controlls
+const orbitControls = new OrbitControls(camera, renderer.domElement);
+
+// Function to Load the Shiba Model
+export const shiba3D = (position) => {
+    return new Promise((resolve, reject) => {
+        loader.load('./assets/shiba/scene.gltf',
+            function (gltf) {
+                let shibaModel = gltf.scene;
+                shibaModel.scale.set(3, 3, 3);
+                shibaModel.position.set(position.x, position.y, position.z);
+                shibaModel.castShadow = true;
+                scene.add(shibaModel);
+                resolve(shibaModel); // ✅ return the model when loaded
+            },
+            undefined,
+            function (error) {
+                console.error("Error loading model:", error);
+                reject(error);
+            }
+        );
+    });
+};
+
+
+// Animation Loop for Hover Rotation
+function animate() {
+    const shibaSpacing = 20;
+    requestAnimationFrame(animate);
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects();
+
+    for (let i = 0; i < intersects.length; i++) {
+
+        intersects[i].object.rotation.z += 0.03;
+
+    }
+
+    renderer.render(scene, camera);
+
+    orbitControls.update();
+
+    renderer.render(scene, camera);
+}
+
+window.addEventListener('mousemove', onPointerMove);
+
+window.requestAnimationFrame(animate);
+animate();
+
+

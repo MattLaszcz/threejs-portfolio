@@ -5,28 +5,33 @@ body {
 
 }
 
-header {
-  margin-top: 3em;
-  text-align: center;
-  color: black;
-}
-
-header h1 {
-  font-size: 2em;
-  font-weight: 900;
-}
-
 #my-name {
     font-size: 2em;
     font-weight: 900;
     position: absolute;
-    bottom: 5em;
+    bottom: 2em;
     left: 3em;
+}
+
+#menu {
+    font-size: 2em;
+    font-weight: 900;
+    position: absolute;
+    top: 1em;
+    right: 3em;
+}
+
+#page-description {
+    font-size: 2em;
+    font-weight: 900;
+    position: absolute;
+    bottom: 2em;
+    right: 3em;
 }
 
 #container3D canvas {
   width: 100vw !important;
-  height: 90vh !important;
+  height: 100vh !important;
   position: absolute;
   bottom: 0;
   left: 0;
